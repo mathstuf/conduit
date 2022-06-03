@@ -159,10 +159,18 @@ find_package(Git)
 if(GIT_FOUND)
   message(STATUS "git executable: ${GIT_EXECUTABLE}")
   execute_process(COMMAND
-    "${GIT_EXECUTABLE}" describe --match=NeVeRmAtCh --always --abbrev=40 --dirty
+    "${GIT_EXECUTABLE}" rev-parse HEAD
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE CONDUIT_GIT_SHA1
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND
+    "${GIT_EXECUTABLE}" diff HEAD
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    RESULT_VARIABLE res
+    OUTPUT_QUIET ERROR_QUIET)
+  if (res)
+    string(APPEND CONDUIT_GIT_SHA1 "-dirty")
+  endif ()
   message(STATUS "Repo SHA1:" ${CONDUIT_GIT_SHA1})
 endif()
 
